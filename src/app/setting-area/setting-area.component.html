@@ -1,0 +1,15 @@
+<div *ngIf="p==undefined">
+  Select Something
+
+</div>
+<div *ngIf="p!=undefined">
+  <h2> {{p.name}}</h2>
+  <div *ngFor="let s of p.schemas">
+    <h3 *ngIf="p.schemas.length > 1" >{{s.name}}</h3>
+    <json-schema-form 
+      loadExternalAssets="true"   
+      [schema]="s.schema" 
+      [layout]="s.layout"
+      (onSubmit)="save($event)"></json-schema-form>
+  </div>
+</div>

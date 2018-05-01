@@ -1,6 +1,29 @@
+# TO TEST
+    in first window: json-server ./samples/db.json
+    next window: npm start
+    go to http://localhost:4200
+
 # Settings
 
+Provides a simple ui for providing user settings. Core concepts: 
+- Setting - A JSON Document
+- Schema - A JSON Schema for a settings document
+- Owner - A thing that owns settings
+- Supplier - A thing that supplies Settings
+- Profile - An instance of a Settings document
+
+In general a `Suppler` provides a set of `Schemas`
+
+
+
+
+
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.7.4.
+
+
+
+
+
 
 ## Development server
 
