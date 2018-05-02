@@ -1,0 +1,9 @@
+.inline {
+    display: inline-block;
+}
+a {
+    color: black;
+}
+button.dialog {
+    width: 7em;
+}

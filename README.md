@@ -20,10 +20,51 @@ In general a `Suppler` provides a set of `Schemas`
 
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.7.4.
 
+## API
+/config
+    - get
+/${type}/${id}
+/${type}/${id}/${profile.name}
 
+/user/jbauer/default
 
+## TODO
 
+### UI
+- Replace Models with Swagger Versions?
+- Progress indicators on loads
+- Schema validation with ajv
+- JWT integration (https://github.com/auth0/angular2-jwt)
+- Basic Profile features
+-- Add
+-- Import
+-- Export
+-- Rename
+-- Copy
+-- Delete
+- Versioning of profiles
+-- Version tree
+-- Compare versions
+-- Switch versions
+- Management Features
+-- Add new Application and schemas
+-- Validate that a JSON Schema is valid
+-- Assume the role of another user  (maybe?)
+- Tests (yuck!)
 
+### Service
+- Build a go service impl
+- Determine storage approach
+- Determine eventing approach
+- Config REST
+-- get
+-- post
+- Types Rest
+-- Get
+-- Post
+- Schema validation with ajv
+- Swagger definitions
+- Tests (yuck!)
 
 ## Development server
 

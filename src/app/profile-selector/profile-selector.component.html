@@ -1,0 +1,174 @@
+<div *ngIf="owner && owner.profiles.length > 0" class="container-fluid bg-light pt-2">
+
+  <!-- <div>
+    Profile:
+    <form class="form-inline">
+      <select class="form-control" id="exampleFormControlSelect1">
+        <option *ngFor="let profile of owner.profiles">{{profile.name}}</option>
+      </select>
+    </form>
+    <div ngbDropdown class="btn-group mr-2">
+      <button ngbDropdownToggle type="button" class="btn btn-outline-primary">{{selected?selected.name:'Select Profile'}}</button>
+      <div ngbDropdownMenu aria-labelledby="dropdownBasic1">
+        <button *ngFor="let profile of owner.profiles" class="dropdown-item" (click)="selectProfile(profile)">{{profile.name}}</button>
+      </div>
+    </div>
+  </div> -->
+  <div>
+    <ul class="nav nav-tabs">
+      <li class="nav-item">
+        <a class="nav-link disabled">Profile: </a>
+      </li>
+      <li class="nav-item" *ngFor="let profile of owner.profiles">
+        <a class="nav-link" href="#" (click)="selectProfile(profile)" [class.active]="profile == selected">{{profile.name}}
+        </a>
+      </li>
+      <li class="nav-item mr-auto">
+        <a class="nav-link" href="#" (click)="addProfile()">
+          <fa-icon icon="plus"></fa-icon>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" (click)="open(rename)" placement="bottom" ngbTooltip="Rename Profile">
+          <fa-icon icon="edit"></fa-icon>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" (click)="open(duplicate)" placement="bottom" ngbTooltip="Copy Profile">
+          <fa-icon icon="copy"></fa-icon>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" (click)="open(importProfile)" placement="bottom" ngbTooltip="Import Profile...">
+          <fa-icon icon="upload"></fa-icon>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" (click)="open(exportProfile)" placement="bottom" ngbTooltip="Export Profile...">
+          <fa-icon icon="download"></fa-icon>
+        </a>
+      </li>
+      <li class="nav-item">
+        <a class="nav-link" href="#" (click)="open(delete)" placement="bottom" ngbTooltip="Delete Profile">
+          <fa-icon icon="trash"></fa-icon>
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
+<ng-template #rename let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <fa-icon icon="edit"></fa-icon> Rename Profile</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <label for="pName">Profile Name</label>
+        <input type="text" class="form-control" id="pName" placeholder="{{selected.name}}">
+        <small id="emailHelp" class="form-text text-muted">Some Help Text Here</small>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success dialog" (click)="c('Apply')">OK</button>
+    <button type="button" class="btn btn-outline-dark dialog" (click)="c('Cancel')">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #duplicate let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <fa-icon icon="copy"></fa-icon> Copy Profile</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <label for="pName">Profile Name</label>
+        <input type="text" class="form-control" id="pName" value="Copy of {{selected.name}}">
+        <small id="emailHelp" class="form-text text-muted">Some Help Text Here</small>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success dialog" (click)="c('Apply')">OK</button>
+    <button type="button" class="btn btn-outline-dark dialog" (click)="c('Cancel')">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #importProfile let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <fa-icon icon="upload"></fa-icon> Import Profile</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <label for="pName">Settings File</label>
+        <input type="file" class="form-control" id="pName" placeholder="Select File to Import">
+        <small id="help" class="form-text text-muted">Please select a settings file to import.</small>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success dialog" (click)="c('Apply')">OK</button>
+    <button type="button" class="btn btn-outline-dark dialog" (click)="c('Cancel')">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #exportProfile let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <fa-icon icon="download"></fa-icon> Export Profile</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <h5>{{selected.name}}</h5>
+        <small id="help" class="form-text text-muted">Select the items to export</small>
+        <div class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" id="checkAll">
+          <label class="custom-control-label text-muted" for="checkAll">Select / Deselect all</label>
+        </div>
+        <div *ngFor="let d of getDefs()" class="custom-control custom-checkbox">
+          <input type="checkbox" class="custom-control-input" id="{{d.name}}">
+          <label class="custom-control-label" for="{{d.name}}">{{d.name}}</label>
+        </div>
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success dialog" (click)="c('Apply')">OK</button>
+    <button type="button" class="btn btn-outline-dark dialog" (click)="c('Cancel')">Cancel</button>
+  </div>
+</ng-template>
+
+<ng-template #delete let-c="close" let-d="dismiss">
+  <div class="modal-header">
+    <h4 class="modal-title">
+      <fa-icon icon="trash"></fa-icon> Delete Profile</h4>
+    <button type="button" class="close" aria-label="Close" (click)="d('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <h5>Are you sure you want to delete {{selected.name}}?</h5>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-success dialog" (click)="c('Apply')">Yes</button>
+    <button type="button" class="btn btn-outline-dark dialog" (click)="c('Cancel')">No</button>
+  </div>
+</ng-template>

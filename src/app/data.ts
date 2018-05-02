@@ -1,22 +1,53 @@
-export class Data {
-    user: User;
-    providers: Array<Provider>;
+/**
+ * A Preference Owner is the class that owns a set or profiles. The current types 
+ * for a profile are: user, team or application. Users and Teams share the same schemas
+ * but each application has different schemas
+ */
+export class PreferenceOwner {
+    id: string
+    name: string
+    description: string
+    type: string
+    activeProfile: string;
+    profiles: Array<Profile>;
 }
 
-export class Provider {
-    name: string;
-    schemas: Array<Schema>;
-}
-
-export class Schema {
-    name: string;
-    schema: any;
-    layout: any;
-}
-
+/**
+ * Represents the currently logged in user. 
+ */
 export class User {
     id: string;
-    profiles: Array<Profile>;
+    owners: Array<PreferenceOwner>;
+}
+
+export class Config {
+    // All the types of preference owners available. This is expected to be
+    // user, team(s), application(s)
+    ownerTypes: Array<PreferenceOwnerType>;
+
+    // All avaialable preference definitions
+    definitions: Array<PreferenceDefinition>;
+}
+
+export class PreferenceOwnerType {
+    type: string;
+    category: string;
+    description: string;
+    definitions: Array<string>
+}
+
+export class PreferenceDefinition {
+    name: string;
+    order: number;
+    schemas: Array<Specification>;
+}
+
+export class Specification {
+    name: string;
+    description: string;
+    order: number;
+    schema: any;
+    layout: any;
 }
 
 export class Profile {
@@ -25,5 +56,7 @@ export class Profile {
 }
 
 export class Setting {
+    provider_ref: string;
+    schema_ref: string;
     data: any;
 }

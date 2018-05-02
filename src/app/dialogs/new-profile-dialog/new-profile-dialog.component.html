@@ -1,0 +1,27 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <fa-icon icon="plus"></fa-icon> New Profile</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss('Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form>
+    <div class="form-group">
+      <label for="pName">Profile Name</label>
+      <input name="name" type="text" class="form-control" id="pName" [(ngModel)]="newName">
+      <small id="emailHelp" class="form-text text-muted">Some Help Text Here</small>
+    </div>
+    <div class="form-group">
+      <label for="pName">Copy From:</label>
+      <select name="copy" class="form-control" id="pName" [(ngModel)]="copyFrom">
+        <option *ngFor="let p of profiles">{{p.name}}</option>
+      </select>
+      <small id="copyHelp" class="form-text text-muted">Optionally select a profile to copy settings from</small>
+    </div>
+  </form>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-success dialog" (click)="save()">OK</button>
+  <button type="button" class="btn btn-outline-dark dialog" (click)="activeModal.close('Cancel')">Cancel</button>
+</div>

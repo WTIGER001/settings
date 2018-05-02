@@ -1,9 +1,5 @@
-
-Listing Providers
-<div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-
-<a *ngFor="let me of providers | async"
-   class="nav-link"
-  [class.active]="selected===me"
-   role="tab" aria-controls="v-pills-home" aria-selected="true" (click)="select(me)">{{me.name}}</a>
+<h5>Setting Categories</h5>
+<div class="nav flex-column nav-tabs nav-tabs--vertical nav-tabs--left high" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+    <a *ngFor="let me of definitions" class="nav-link" href="#" [class.active]="selected===me" role="tab" aria-controls="v-pills-home"
+        aria-selected="true" (click)="select(me)">{{me.name}}</a>
 </div>

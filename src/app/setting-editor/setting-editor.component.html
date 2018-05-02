@@ -1,0 +1,5 @@
+<json-schema-form *ngIf="mode=='form'" [schema]="spec.schema" [layout]="spec.layout" [data]="setting.data" (onSubmit)="save($event, setting)">
+</json-schema-form>
+
+
+<ace-editor *ngIf="mode=='json'" [(text)]="code" mode="json" style="height:400px;"></ace-editor>
