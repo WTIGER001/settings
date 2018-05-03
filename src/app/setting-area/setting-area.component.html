@@ -1,10 +1,9 @@
 <div *ngIf="definition==undefined">
   Select Something
-
 </div>
 <div *ngIf="definition!=undefined">
   <div class="py-2 ">
-    <h2 class="mr-auto">{{definition.name}}</h2>
+    <!-- <h2 class="mr-auto">{{definition.name}}</h2> -->
     <div class="float-right">
       <div class="btn-group btn-group-toggle btn-group-sm" ngbRadioGroup name="radioBasic" [(ngModel)]="mode">
         <label ngbButtonLabel class="btn-secondary">
@@ -23,7 +22,7 @@
   </div>
 
   <div *ngFor="let s of items">
-    <h3 *ngIf="items.length > 1">{{s.spec.name}}</h3>
+    <h3>{{s.spec.name}}</h3>
     <app-setting-editor *ngIf='s.spec && s.setting' [mode]="mode" [spec]="s.spec" [setting]="s.setting"></app-setting-editor>
   </div>
 </div>

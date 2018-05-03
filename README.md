@@ -35,13 +35,8 @@ This project was generated with [Angular CLI](https://github.com/angular/angular
 - Progress indicators on loads
 - Schema validation with ajv
 - JWT integration (https://github.com/auth0/angular2-jwt)
-- Basic Profile features
--- Add
--- Import
--- Export
--- Rename
--- Copy
--- Delete
+- Widgets
+-- JSON
 - Versioning of profiles
 -- Version tree
 -- Compare versions

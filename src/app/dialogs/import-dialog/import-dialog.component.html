@@ -1,0 +1,21 @@
+<div class="modal-header">
+  <h4 class="modal-title">
+    <fa-icon icon="upload"></fa-icon> Import Profile</h4>
+  <button type="button" class="close" aria-label="Close" (click)="activeModal.dismiss( 'Cross click')">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <form>
+    <div class="form-group">
+      <label for="pName">Settings File</label>
+      <input type="file" class="form-control" id="pName" placeholder="Select File to Import" (change)="loadFile($event.target.files)">
+      <small id="help" class="form-text text-muted">Please select a settings file to import.</small>
+    </div>
+  </form>
+  <app-checklist *ngIf="items.length > 0" [items]="items" [checklistValues]="items" (checked)="changed($event)" [helpText]="'Select Items to Import'"></app-checklist>
+</div>
+<div class="modal-footer">
+  <button type="button" class="btn btn-success dialog" (click)="ok()">OK</button>
+  <button type="button" class="btn btn-outline-dark dialog" (click)="activeModal.dismiss('Cancel')">Cancel</button>
+</div>

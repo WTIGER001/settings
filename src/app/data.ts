@@ -60,3 +60,10 @@ export class Setting {
     schema_ref: string;
     data: any;
 }
+
+export class ExportPackage {
+    ownerName: string
+    ownerType: string
+    profileName: string;
+    settings: Array<Setting>;
+}

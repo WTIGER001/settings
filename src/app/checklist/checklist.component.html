@@ -1,0 +1,13 @@
+<form>
+  <div class="form-group">
+    <small id="help" class="form-text text-muted">{{helpText}}</small>
+    <div class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" id="checkAll" (click)="checkAll()" [checked]="isAllChecked(d)">
+      <label class="custom-control-label text-muted" for="checkAll">Select / Deselect all</label>
+    </div>
+    <div *ngFor="let d of items" class="custom-control custom-checkbox">
+      <input type="checkbox" class="custom-control-input" id="{{d.name}}" (click)="toggle(d)" [checked]="isChecked(d)">
+      <label class="custom-control-label" for="{{d.name}}">{{d.name}}</label>
+    </div>
+  </div>
+</form>

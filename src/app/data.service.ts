@@ -6,7 +6,8 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/map';
 
 
-import { User, PreferenceDefinition, Config, PreferenceOwner, Profile } from './data';
+import { User, PreferenceDefinition, Config, PreferenceOwner, Profile, Setting } from './data';
+import { CommonDialogService } from './dialogs/common-dialog.service';
 
 @Injectable()
 export class DataService {
@@ -33,10 +34,10 @@ export class DataService {
   selection: ReplaySubject<PreferenceDefinition> = new ReplaySubject();
 
   // Not sure how to make this better.
-  private owner: PreferenceOwner
-  private cfg: Config
+  owner: PreferenceOwner
+  cfg: Config
 
-  constructor(private http: Http) {
+  constructor(private http: Http, private dialog: CommonDialogService) {
 
 
     console.log("Getting Config");
@@ -148,7 +149,13 @@ export class DataService {
     return definitions
   }
 
-  public CreateProfile(ownder: PreferenceOwner, name: string, copyFrom: Profile): Profile {
+  public CreateProfile(owner: PreferenceOwner, name: string, copyFrom: Profile): Profile {
+    let dup = this.checkDuplicateNames(name, owner.profiles)
+    if (dup) {
+      this.dialog.errorMsg("You cannot have the same name for 2 profiles", "Duplicate Names")
+      return;
+    }
+
     let newProfile = new Profile();
     if (copyFrom) {
       newProfile = JSON.parse(JSON.stringify(copyFrom));
@@ -157,7 +164,63 @@ export class DataService {
     }
     newProfile.name = name;
 
+    let type = this.owner.type;
+    let ownerType = this.cfg.ownerTypes.find(p => p.type == type)
+    let defs = this.cfg.definitions.filter(def => ownerType.definitions.includes(def.name));
+
+    defs.forEach(d => {
+      d.schemas.forEach(s => {
+        let setting = new Setting()
+        setting.data = {}
+        setting.provider_ref = d.name
+        setting.schema_ref = s.name
+
+        // add the setting if needed
+        let found = newProfile.settings.find(s => s.provider_ref == setting.provider_ref && s.schema_ref == setting.schema_ref)
+        if (!found) {
+          newProfile.settings.push(setting)
+        }
+      })
+    })
+
     this.owner.profiles.push(newProfile);
     return newProfile;
+  }
+
+  public renameProfile(p: Profile, name: string) {
+    if (p.name == name) {
+      return;
+    }
+
+    let dup = this.checkDuplicateNames(name, this.owner.profiles, p)
+    if (dup) {
+      this.dialog.errorMsg("You cannot have the same name for 2 profiles", "Duplicate Names")
+      return;
+    }
+    if (p.name == this.owner.activeProfile) {
+      this.owner.activeProfile = name
+    }
+    p.name = name;
+  }
+
+  public checkDuplicateNames(name: string, profiles: Array<Profile>, exclude: Profile = undefined): boolean {
+    return (profiles.findIndex(p => {
+      if (exclude && p == exclude) {
+        return false
+      }
+      return p.name == name
+    }) >= 0)
+  }
+
+  public deleteProfile(name: string) {
+    if (name == this.owner.activeProfile) {
+      this.dialog.errorMsg("You cannot delete the active profile", "Error")
+      return;
+    }
+
+    let index = this.owner.profiles.findIndex(p => p.name == name);
+    if (index >= 0) {
+      this.owner.profiles.splice(index, 1);
+    }
   }
 }

@@ -4,6 +4,7 @@ import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 import { Profile, PreferenceOwner, PreferenceDefinition } from '../data';
 import { DataService } from '../data.service';
 import { DialogService } from '../dialogs/dialog.service';
+import { CommonDialogService } from '../dialogs/common-dialog.service';
 
 @Component({
   selector: 'app-profile-selector',
@@ -15,7 +16,10 @@ export class ProfileSelectorComponent implements OnInit {
   selected: Profile
   closeResult: string;
 
-  constructor(private _dataSvc: DataService, private modalService: NgbModal, private dialog: DialogService) { }
+  constructor(private _dataSvc: DataService,
+    private modalService: NgbModal,
+    private dialog: DialogService,
+    private commonDialog: CommonDialogService) { }
 
   ngOnInit() {
     this._dataSvc.currentOwner.subscribe(o => {
@@ -38,12 +42,41 @@ export class ProfileSelectorComponent implements OnInit {
     this.dialog.newProfile(this.owner);
   }
 
-  open(content) {
-    this.modalService.open(content).result.then((result) => {
-      this.closeResult = `Closed with: ${result}`;
-    }, (reason) => {
-      this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
-    });
+  exportProfile() {
+    this.dialog.exportProfile(this.selected);
+  }
+
+  importProfile() {
+    this.dialog.importProfile();
+  }
+
+  deleteProfile() {
+    if (this.owner.activeProfile == this.selected.name) {
+      return;
+    }
+
+    this.commonDialog.confirm(`Are you sure you want to delete ${this.selected.name}`, "Delete Profile").subscribe(result => {
+      if (result) {
+        this._dataSvc.deleteProfile(this.selected.name);
+      }
+    })
+  }
+
+  makeActive() {
+    this.owner.activeProfile = this.selected.name
+  }
+
+  public newName() {
+    console.log("Renamiing");
+
+    let newName = this.commonDialog.inputDialog(
+      "Enter New Name",
+      "Rename Profile",
+      this.selected.name,
+      "Enter New Name", "You may not have duplicate names", "edit")
+    newName.subscribe((name: string) => {
+      this._dataSvc.renameProfile(this.selected, name)
+    })
   }
 
   private getDismissReason(reason: any): string {

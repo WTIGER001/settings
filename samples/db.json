@@ -70,7 +70,10 @@
         "type": "users",
         "category": "user",
         "description": "Users",
-        "definitions": []
+        "definitions": [
+          "General",
+          "Events"
+        ]
       }
     ],
     "definitions": [

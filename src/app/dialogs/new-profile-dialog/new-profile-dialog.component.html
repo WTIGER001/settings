@@ -15,7 +15,7 @@
     <div class="form-group">
       <label for="pName">Copy From:</label>
       <select name="copy" class="form-control" id="pName" [(ngModel)]="copyFrom">
-        <option *ngFor="let p of profiles">{{p.name}}</option>
+        <option *ngFor="let p of profiles" [ngValue]="p">{{p.name}}</option>
       </select>
       <small id="copyHelp" class="form-text text-muted">Optionally select a profile to copy settings from</small>
     </div>
