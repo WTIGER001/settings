@@ -1,5 +1,5 @@
-import { Component, OnInit, Input } from '@angular/core';
-import { Setting, Specification } from '../data';
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core';
+import { Setting, Specification, ChangedSetting } from '../data';
 
 @Component({
   selector: 'app-setting-editor',
@@ -10,6 +10,13 @@ export class SettingEditorComponent implements OnInit {
   @Input() setting: Setting
   @Input() spec: Specification
   @Input() mode: string
+  @Output() changes = new EventEmitter<any>();
+
+  changedSetting = new ChangedSetting()
+
+  options = {
+    addSubmit: false
+  }
 
   constructor() { }
 
@@ -28,6 +35,13 @@ export class SettingEditorComponent implements OnInit {
     catch (e) {
       console.log('error occored while you were typing the JSON');
     };
+  }
+
+  localChanges(event) {
+    this.changedSetting.data = event
+    this.changedSetting.setting = this.setting
+    this.changedSetting.spec = this.spec
+    this.changes.emit(this.changedSetting);
   }
 
   save(event, setting) {

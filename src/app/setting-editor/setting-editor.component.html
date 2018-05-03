@@ -1,4 +1,5 @@
-<json-schema-form *ngIf="mode=='form'" [schema]="spec.schema" [layout]="spec.layout" [data]="setting.data" (onSubmit)="save($event, setting)">
+<json-schema-form *ngIf="mode=='form'" [schema]="spec.schema" [layout]="spec.layout" [data]="setting.data" (onSubmit)="save($event, setting)"
+    (onChanges)="localChanges($event)" [options]="options">
 </json-schema-form>
 
 

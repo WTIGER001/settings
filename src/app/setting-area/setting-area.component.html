@@ -15,7 +15,7 @@
       </div>
       <div class="btn-group btn-group-sm">
         <button type="button" class="btn btn-error">Cancel</button>
-        <button type="button" class="btn btn-success">
+        <button type="button" class="btn btn-success" (click)="save()">
           <fa-icon icon="save"></fa-icon> Save</button>
       </div>
     </div>
@@ -23,6 +23,6 @@
 
   <div *ngFor="let s of items">
     <h3>{{s.spec.name}}</h3>
-    <app-setting-editor *ngIf='s.spec && s.setting' [mode]="mode" [spec]="s.spec" [setting]="s.setting"></app-setting-editor>
+    <app-setting-editor *ngIf='s.spec && s.setting' [mode]="mode" [spec]="s.spec" [setting]="s.setting" (changes)="changes($event)"></app-setting-editor>
   </div>
 </div>

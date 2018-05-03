@@ -67,3 +67,9 @@ export class ExportPackage {
     profileName: string;
     settings: Array<Setting>;
 }
+
+export class ChangedSetting {
+    spec: Specification;
+    data: any;
+    setting: Setting
+}

@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../data.service';
-import { PreferenceDefinition, Profile, Specification, Setting } from '../data';
+import { PreferenceDefinition, Profile, Specification, Setting, ChangedSetting } from '../data';
+import { JsonSchemaFormService } from 'angular2-json-schema-form';
 
 @Component({
   selector: 'app-setting-area',
@@ -12,6 +13,7 @@ export class SettingAreaComponent implements OnInit {
   profile: Profile;
   items: Array<HoldMe> = []
   public mode = 'form'
+  changedData = new Map<Setting, ChangedSetting>()
 
   constructor(private _data: DataService) { }
 
@@ -28,7 +30,7 @@ export class SettingAreaComponent implements OnInit {
       this.sortAndPrep()
     });
   }
-  
+
   private sortAndPrep() {
 
     if (this.definition == undefined || this.profile == undefined) return
@@ -55,7 +57,22 @@ export class SettingAreaComponent implements OnInit {
     })
     this.items = a
   }
+
+  changes(changed: ChangedSetting) {
+    console.log(changed.data);
+    this.changedData.set(changed.setting, changed)
+  }
+  save() {
+    console.log("Saved");
+    this.changedData.forEach(v => {
+      v.setting.data = v.data
+    })
+
+    this._data.save(this.profile);
+  }
 }
+
+
 
 class HoldMe {
   setting: Setting;
