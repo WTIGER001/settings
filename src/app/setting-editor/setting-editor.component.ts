@@ -7,6 +7,9 @@ import { Setting, Specification, ChangedSetting } from '../data';
   styleUrls: ['./setting-editor.component.css']
 })
 export class SettingEditorComponent implements OnInit {
+
+  data: {}
+
   @Input() setting: Setting
   @Input() spec: Specification
   @Input() mode: string
@@ -21,16 +24,17 @@ export class SettingEditorComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
-
+    this.data = this.setting.data
   }
 
   get code() {
-    return JSON.stringify(this.setting.data, null, 2);
+    // return JSON.stringify(this.setting.data, null, 2);
+    return JSON.stringify(this.data, null, 2)
   }
 
   set code(v) {
     try {
-      this.setting.data = JSON.parse(v);
+      this.data = JSON.parse(v);
     }
     catch (e) {
       console.log('error occored while you were typing the JSON');
@@ -38,6 +42,7 @@ export class SettingEditorComponent implements OnInit {
   }
 
   localChanges(event) {
+    this.data = event
     this.changedSetting.data = event
     this.changedSetting.setting = this.setting
     this.changedSetting.spec = this.spec
@@ -49,4 +54,6 @@ export class SettingEditorComponent implements OnInit {
     console.log(event)
     setting.data = event
   }
+
+
 }

@@ -1,0 +1,643 @@
+swagger: "2.0"
+info:
+  description: "Definition for the Preferences Server"
+  version: "1.0.0"
+  title: "Preferences Store"
+  license:
+    name: "Apache 2.0"
+    url: "http://www.apache.org/licenses/LICENSE-2.0.html"
+basePath: "/"
+tags:
+- name: "Preferences"
+  description: "Preference Management including instnaces of types and profiles"
+- name: "Configuration"
+  description: "Preferences Definition Management"
+schemes:
+- "http"
+paths:
+  /configuration:
+    get: 
+      tags:
+      - "Configuration"
+      summary: "Get all configuration definitions"
+      description: ""
+      operationId: "getConfig"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Config"
+        405:
+          description: "Invalid input"
+        500:
+          description: "Internal Error"
+  /definition:
+    get: 
+      tags:
+      - "Configuration"
+      summary: "Get all preference definitions"
+      description: ""
+      operationId: "getDefinitions"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/PreferenceDefinitionArray"
+        405:
+          description: "Invalid input"
+        500:
+          description: "Internal Error"
+    post:
+      tags:
+      - "Configuration"
+      summary: "Add a new Preference Definition to the set of available definitions"
+      description: ""
+      operationId: "addDefinition"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Preference Definition that needs to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/PreferenceDefinition"
+      responses:
+        200: 
+          description: "Success"
+          schema:
+            $ref: "#/definitions/PreferenceDefinition"
+        405:
+          description: "Invalid input"
+        500:
+          description: "Internal Error"
+  /definition/{id}:
+    get:
+      tags:
+      - "Configuration"
+      summary: "Find definition by ID"
+      description: "Returns a single definition"
+      operationId: "getDefinition"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of definition to return"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/PreferenceDefinition"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Pet not found"
+        500:
+          description: "Internal Error"
+    post:
+      tags:
+      - "Configuration"
+      summary: "Update an existing Definition"
+      description: ""
+      operationId: "updateDefinition"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of definition to return"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Preference Definition needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/PreferenceDefinition"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/PreferenceDefinition"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Definition not found"
+        405:
+          description: "Validation exception"
+        500:
+          description: "Internal Error"
+    delete:
+      tags:
+      - "Configuration"
+      summary: "Deletes a definition"
+      description: ""
+      operationId: "deleteDefinition"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Definition id to delete"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Definition not found"
+        500:
+          description: "Internal Error"
+  /type:
+    get: 
+      tags:
+      - "Configuration"
+      summary: "Get all owner types"
+      description: ""
+      operationId: "getOwnerTypes"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "Success"
+          schema: 
+             $ref: "#/definitions/OwnerTypeArray"
+        405:
+          description: "Invalid input"
+        500:
+          description: "Internal Error"
+    post:
+      tags:
+      - "Configuration"
+      summary: "Add a new Owner type to the set of available types"
+      description: ""
+      operationId: "addOwnerType"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Type that needs to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/OwnerType"
+      responses:
+        200:
+          description: "success"
+        405:
+          description: "Invalid input"
+        500:
+          description: "Internal Error"
+  /type/{id}:
+    get:
+      tags:
+      - "Configuration"
+      summary: "Find type by ID"
+      description: "Returns a single owner type"
+      operationId: "getType"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of type to return"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/OwnerType"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Not found"
+        500:
+          description: "Internal Error"
+    post:
+      tags:
+      - "Configuration"
+      summary: "Update an existing type"
+      description: ""
+      operationId: "updateOwnerType"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of type to return"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Owner type needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/OwnerType"
+      responses:
+        200:
+          description: "success"
+          schema:
+            $ref: "#/definitions/OwnerType"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Definition not found"
+        405:
+          description: "Validation exception"
+        500:
+          description: "Internal Error"
+    delete:
+      tags:
+      - "Configuration"
+      summary: "Deletes a type"
+      description: ""
+      operationId: "deleteType"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Type id to delete"
+        required: true
+        type: "string"
+      responses:
+        200: 
+          description: "success"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Type not found"
+        500:
+          description: "Internal Error"
+  /owner/{id}:
+    get:
+      tags:
+      - "Preferences"
+      summary: "Find Preference Owner by Id"
+      description: "Returns a single owner"
+      operationId: "getOwner"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of type to return"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/PreferenceOwner"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Not found"
+        500:
+          description: "Internal Error"
+    post:
+      tags:
+      - "Preferences"
+      summary: "Update an existing owner"
+      description: ""
+      operationId: "updateOwner"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of type to return"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Owner needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/PreferenceOwner"
+      responses:
+        200:
+          description: "success"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Definition not found"
+        405:
+          description: "Validation exception"
+        500:
+          description: "Internal Error"
+    delete:
+      tags:
+      - "Preferences"
+      summary: "Deletes an Owner"
+      description: ""
+      operationId: "deleteOwner"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Type id to delete"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "success"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Type not found"
+        500:
+          description: "Internal Error"
+  /profiles:
+    get:
+      tags:
+      - "Preferences"
+      summary: "Find profile  by Id"
+      description: "Returns a single owner"
+      operationId: "getProfiles"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "query"
+        description: "ID of type to return"
+        required: true
+        type: "array"
+        items: 
+          type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ProfileArray"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Not found"
+        500:
+          description: "Internal Error"
+  /profile/{id}:
+    get:
+      tags:
+      - "Preferences"
+      summary: "Find profile  by Id"
+      description: "Returns a single owner"
+      operationId: "getProfile"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of type to return"
+        required: true
+        type: "string"
+      - name: "version"
+        in: "query"
+        description: "ID of type to return"
+        required: false
+        type: "integer"
+        format: "int"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Profile"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Not found"
+        500:
+          description: "Internal Error"
+    post:
+      tags:
+      - "Preferences"
+      summary: "Update an existing profile"
+      description: ""
+      operationId: "updateProfile"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of type to return"
+        required: true
+        type: "string"
+      - in: "body"
+        name: "body"
+        description: "Owner needs to be updated"
+        required: true
+        schema:
+          $ref: "#/definitions/Profile"
+      responses:
+        200:
+          description: "success"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Definition not found"
+        405:
+          description: "Validation exception"
+        500:
+          description: "Internal Error"
+    delete:
+      tags:
+      - "Preferences"
+      summary: "Deletes a profile"
+      description: ""
+      operationId: "deleteProfile"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "Type id to delete"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "success"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Type not found"
+        500:
+          description: "Internal Error"
+  /profile/{id}/version:
+    get:
+      tags:
+      - "Preferences"
+      summary: "Versions of a profile"
+      description: "Returns a list of all profile versions"
+      operationId: "getProfileVersions"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "id"
+        in: "path"
+        description: "ID of type to return"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/ProfileVersions"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Not found"
+        500:
+          description: "Internal Error"
+  /my:
+    get:
+      tags:
+      - "Preferences"
+      summary: "Find Preference for the JWT supplied"
+      description: "Returns a single owner"
+      operationId: "getMyActiveProfile"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: "successful operation"
+          schema:
+            $ref: "#/definitions/Profile"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Not found"
+        500:
+          description: "Internal Error"
+definitions:
+  PreferenceDefinition:
+    type: "object"
+    properties:
+      id:
+        type: "string"
+      name:
+        type: "string"
+      order:
+        type: "integer"
+        format: "int"
+      category:
+        type: "string"
+      schema:
+        type: "object"
+        description: "JSON Schema"
+      layout:
+        type: "object"
+        description: "Layout Instructions"
+  PreferenceDefinitionArray:
+    type: "array"
+    items: 
+      $ref: "#/definitions/PreferenceDefinition"
+  OwnerType: 
+    type: "object"
+    properties: 
+      id:
+        type: "string"
+      name: 
+        type: "string"
+      description: 
+        type: "string"
+      definitions: 
+        type: "array"
+        items: 
+          type: "string"
+  OwnerTypeArray:
+    type: "array"
+    items: 
+      $ref: "#/definitions/OwnerType"
+  PreferenceOwner:
+    type: "object"
+    properties: 
+      id: 
+        type: "string"
+      ownerType:
+        type: "string"
+      active:
+        type: "string"
+      profileIds: 
+        type: "array"
+        items:
+          type: "string"
+  Profile: 
+    type: "object"
+    properties:
+      id: 
+        type: "string"
+      version: 
+        type: "integer"
+        format: "int"
+      preferences: 
+        type: "array"
+        items: 
+          $ref: "#/definitions/Preference"
+  ProfileArray:
+    type: "array"
+    items: 
+      $ref: "#/definitions/Profile"
+  ProfileVersion: 
+    type: "object"
+    properties: 
+      version: 
+        type: "integer"
+        format: "int"
+      version-date: 
+        type: "string"
+        format: "date-time"
+  ProfileVersions: 
+    type: "object"
+    properties:
+      id: 
+        type: "string"
+      versions:
+        type: "array"
+        items: 
+          $ref: "#/definitions/ProfileVersion"
+  Preference:
+    type: "object"
+    properties:
+      definition-id: 
+        type: "string"
+      value:
+        type: "object"
+  Config:
+    type: "object"
+    properties:
+      ownerTypes: 
+        $ref: "#/definitions/OwnerTypeArray"
+      definitions:
+        $ref: "#/definitions/PreferenceDefinitionArray"
+externalDocs:
+  description: "Find out more about Swagger"
+  url: "http://swagger.io"

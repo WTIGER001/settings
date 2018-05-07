@@ -14,19 +14,39 @@ Provides a simple ui for providing user settings. Core concepts:
 
 In general a `Suppler` provides a set of `Schemas`
 
-
-
-
-
 This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 1.7.4.
 
 ## API
-/config
-    - get
-/${type}/${id}
-/${type}/${id}/${profile.name}
 
-/user/jbauer/default
+*User Preferences*
+/my - Retrieves the active profile for this user, as identified by the JWT
+
+/{user}/{user-id} - Retrieves the user object
+OR
+/owner/{owner-id}
+
+/profile?id={profile-id}&id={profile-id}&id={profile-id}&id={profile-id}
+/profile?id={profile-id}&id=1,2,3,4
+
+/profile/{id}/version            - get the version table for this id
+/profile/{id}/versions/1 - get the version identified for this id
+
+Call Stack
+ 
+on init
+- get Owners
+- get Definitions
+(maybe a get config)
+- get Owner
+- get Profiles
+- get Profile Versions
+
+actions: 
+- rename -> put profile (new version?)
+- delete -> delete profile
+- set active -> put owner
+- change pref -> put profile (new version)
+- new Profile -> put profile, put owner?
 
 ## TODO
 
@@ -84,3 +104,58 @@ Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protrac
 ## Further help
 
 To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+
+
+-----
+
+Owner
+{
+    id : "sdfasfdasdfasfw-werwer",
+    type:"user", 
+    active:"default", 
+    profiles:[
+        {
+            profile-id : "default",
+            latest : {
+                profile-id ="default", 
+            }
+            versions : [{
+                version: 4, 
+                date: 12/23/2016T12:34:56
+            }, {
+                version: 3, 
+                date: 12/23/2016T12:34:56
+            }, {
+                version: 2, 
+                date: 12/23/2016T12:34:56
+            }, {
+                version: 1, 
+                date: 12/23/2016T12:34:56
+            }]
+        }, 
+        {
+            profile-id : "nicki",
+            versions : [{
+                version: 4, 
+                date: 12/23/2016T12:34:56
+            }, {
+                version: 3, 
+                date: 12/23/2016T12:34:56
+            }, {
+                version: 2, 
+                date: 12/23/2016T12:34:56
+            }, {
+                version: 1, 
+                date: 12/23/2016T12:34:56
+            }]
+        }
+    ]
+}
+
+Profile 
+{
+    id : "wqerqwrqw"
+
+
+
+}

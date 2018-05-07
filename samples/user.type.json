@@ -1,0 +1,8 @@
+{
+    "id": "user",
+    "name": "User",
+    "description": "Users",
+    "definitions": [
+        "general"
+    ]
+}

@@ -6,8 +6,11 @@ import 'rxjs/add/operator/mergeMap';
 import 'rxjs/add/operator/map';
 
 
-import { User, PreferenceDefinition, Config, PreferenceOwner, Profile, Setting } from './data';
+// import { User, PreferenceDefinition, Config, PreferenceOwner, Profile, Setting } from './data';
+import { User } from './data';
+import { Config, OwnerType, Preference, PreferenceDefinition, PreferenceOwner, Profile, ProfileVersion, ProfileVersions } from './api/models';
 import { CommonDialogService } from './dialogs/common-dialog.service';
+import { ConfigurationService, PreferencesService } from './api/services';
 
 @Injectable()
 export class DataService {
@@ -17,6 +20,8 @@ export class DataService {
 
   // Current configuration
   config: ReplaySubject<Config> = new ReplaySubject();
+  definitions: ReplaySubject<Array<PreferenceDefinition>> = new ReplaySubject();
+  types: ReplaySubject<Array<OwnerType>> = new ReplaySubject();
 
   // Current Preference Owner
   currentOwner: ReplaySubject<PreferenceOwner> = new ReplaySubject();
@@ -36,16 +41,52 @@ export class DataService {
   // Not sure how to make this better.
   owner: PreferenceOwner
   cfg: Config
+  defs: Array<PreferenceDefinition>
+  tps: Array<OwnerType>
 
-  constructor(private http: Http, private dialog: CommonDialogService) {
+  constructor(
+    private http: Http,
+    private dialog: CommonDialogService,
+    private configSvc: ConfigurationService,
+    private prefSvc: PreferencesService) {
+
+    console.log("Requesting Preference Definitions")
+    this.configSvc.getDefinitions()
+      .subscribe(d => {
+        this.defs = d;
+        this.definitions.next(d);
+
+        if (this.defs != undefined && this.tps != undefined) {
+          this.cfg = {
+            definitions: this.defs,
+            ownerTypes: this.tps
+          }
+          this.config.next(this.cfg);
+        }
+      })
+
+    console.log("Requesting Owner Types")
+    this.configSvc.getOwnerTypes()
+      .subscribe(t => {
+        this.tps = t;
+        this.types.next(t);
+
+        if (this.defs != undefined && this.tps != undefined) {
+          this.cfg = {
+            definitions: this.defs,
+            ownerTypes: this.tps
+          }
+          this.config.next(this.cfg);
+        }
+      })
 
 
-    console.log("Getting Config");
-    http.get('http://localhost:3000/config')
-      .subscribe(res => {
-        this.cfg = res.json()
-        this.config.next(this.cfg);
-      });
+    // console.log("Getting Config");
+    // http.get('http://localhost:3000/config')
+    //   .subscribe(res => {
+    //     this.cfg = res.json()
+    //     this.config.next(this.cfg);
+    //   });
 
     console.log("Getting User");
     http.get('http://localhost:3000/users/jbauer')
@@ -78,7 +119,7 @@ export class DataService {
     this.profiles.subscribe(p => {
       console.log(p);
 
-      let found = p.find(profile => profile.name == this.owner.activeProfile)
+      let found = p.find(profile => profile.id == this.owner.active)
       if (found != undefined) {
         this.currentProfile.next(found);
       } else {

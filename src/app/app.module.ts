@@ -1,13 +1,15 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';
-import { NgModule } from '@angular/core';
+import { NgModule, Provider, APP_INITIALIZER, forwardRef } from '@angular/core';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
 import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { JsonSchemaFormModule, Bootstrap4FrameworkModule } from 'angular2-json-schema-form';
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AceEditorModule } from 'ng2-ace-editor';
+import { ApiModule } from './api/api.module'
 
-
+import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 import { ProviderListComponent } from './provider-list/provider-list.component';
@@ -27,6 +29,24 @@ import { ConfirmDialogComponent } from './dialogs/confirm-dialog/confirm-dialog.
 import { MessageDialogComponent } from './dialogs/message-dialog/message-dialog.component';
 import { InputDialogComponent } from './dialogs/input-dialog/input-dialog.component'
 import { CommonDialogService } from './dialogs/common-dialog.service';
+import { ApiConfiguration } from './api/api-configuration';
+
+export function initApiConfiguration(config: ApiConfiguration): Function {
+  return () => {
+    config.rootUrl = 'https://some-root-url.com';
+  };
+}
+export const INIT_API_CONFIGURATION: Provider = {
+  provide: APP_INITIALIZER,
+  useFactory: initApiConfiguration,
+  deps: [ApiConfiguration],
+  multi: true
+};
+export const API_INTERCEPTOR_PROVIDER: Provider = {
+  provide: HTTP_INTERCEPTORS,
+  useExisting: forwardRef(() => ApiInterceptor),
+  multi: true
+};
 
 @NgModule({
   declarations: [
@@ -51,14 +71,17 @@ import { CommonDialogService } from './dialogs/common-dialog.service';
     FormsModule,
     Bootstrap4FrameworkModule,
     NgbModule.forRoot(),
-
+    ApiModule,
     FontAwesomeModule,
     AceEditorModule,
     JsonSchemaFormModule.forRoot(Bootstrap4FrameworkModule)
   ],
   providers: [
+    ApiInterceptor,
+    API_INTERCEPTOR_PROVIDER,
+    INIT_API_CONFIGURATION,
     DataService,
-    DialogService, 
+    DialogService,
     CommonDialogService
   ],
   bootstrap: [AppComponent],

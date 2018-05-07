@@ -1,0 +1,12 @@
+{
+    "id": "default",
+    "version": 1,
+    "preferences": [
+        {
+            "definition-id": "general",
+            "value": {
+                "first_name": "John"
+            }
+        }
+    ]
+}
