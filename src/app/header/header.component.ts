@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { PreferenceOwner, User } from '../data';
+import { User } from '../data';
 import { DataService } from '../data.service';
+import { PreferenceOwner } from '../api/models';
 
 @Component({
   selector: 'app-header',
@@ -17,20 +18,11 @@ export class HeaderComponent implements OnInit {
   constructor(private _dataSvc: DataService) { }
 
   ngOnInit() {
-    this._dataSvc.user.subscribe(usr => {
-      this.me = usr;
-      this.mySettings = DataService.findMe(usr);
-      this.teams = DataService.findOwner(usr, "team");
-      this.others = DataService.findOwner(usr, "other");
-      if (this.mySettings != undefined) {
-        this.selectMySettings()
-      }
-      console.log("IN HEADER")
-      console.log(this.me)
-      console.log(this.mySettings)
-      console.log(this.teams)
-      console.log(this.others)
-    })
+    this._dataSvc.user
+      .flatMap(usr => this._dataSvc.findMe(usr))
+      .subscribe(myOwner =>
+        this.mySettings = myOwner
+      )
   }
 
   selectMySettings() {

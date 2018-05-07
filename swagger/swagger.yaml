@@ -15,13 +15,13 @@ tags:
 schemes:
 - "http"
 paths:
-  /configuration:
+  /category:
     get: 
       tags:
       - "Configuration"
-      summary: "Get all configuration definitions"
+      summary: "Get all category definitions"
       description: ""
-      operationId: "getConfig"
+      operationId: "getCategories"
       consumes:
       - "application/json"
       produces:
@@ -30,9 +30,61 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/Config"
+            type: "array"
+            items:
+              $ref: "#/definitions/Category"
         405:
           description: "Invalid input"
+        500:
+          description: "Internal Error"
+    post: 
+      tags:
+      - "Configuration"
+      summary: "Save categories"
+      description: ""
+      operationId: "addCategory"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "category"
+        description: "Category that needs to be added"
+        required: true
+        schema:
+          $ref: "#/definitions/Category"
+      responses:
+        200:
+          description: "Success"
+          schema:
+            $ref: "#/definitions/Category"
+        405:
+          description: "Invalid input"
+        500:
+          description: "Internal Error"
+  /category/{name}:
+    delete:
+      tags:
+      - "Configuration"
+      summary: "Deletes a category"
+      description: ""
+      operationId: "deleteCategory"
+      produces:
+      - "application/json"
+      parameters:
+      - name: "name"
+        in: "path"
+        description: "category name to delete"
+        required: true
+        type: "string"
+      responses:
+        200:
+          description: "Success"
+        400:
+          description: "Invalid ID supplied"
+        404:
+          description: "Category not found"
         500:
           description: "Internal Error"
   /definition:
@@ -50,7 +102,9 @@ paths:
         200:
           description: "Success"
           schema:
-            $ref: "#/definitions/PreferenceDefinitionArray"
+            type: "array"
+            items: 
+              $ref: "#/definitions/PreferenceDefinition"
         405:
           description: "Invalid input"
         500:
@@ -180,7 +234,9 @@ paths:
         200:
           description: "Success"
           schema: 
-             $ref: "#/definitions/OwnerTypeArray"
+            type: "array"
+            items: 
+              $ref: "#/definitions/OwnerType"
         405:
           description: "Invalid input"
         500:
@@ -395,8 +451,10 @@ paths:
       responses:
         200:
           description: "successful operation"
-          schema:
-            $ref: "#/definitions/ProfileArray"
+          schema: 
+            type: "array"
+            items: 
+              $ref: "#/definitions/Profile"
         400:
           description: "Invalid ID supplied"
         404:
@@ -556,10 +614,6 @@ definitions:
       layout:
         type: "object"
         description: "Layout Instructions"
-  PreferenceDefinitionArray:
-    type: "array"
-    items: 
-      $ref: "#/definitions/PreferenceDefinition"
   OwnerType: 
     type: "object"
     properties: 
@@ -573,16 +627,12 @@ definitions:
         type: "array"
         items: 
           type: "string"
-  OwnerTypeArray:
-    type: "array"
-    items: 
-      $ref: "#/definitions/OwnerType"
   PreferenceOwner:
     type: "object"
     properties: 
       id: 
         type: "string"
-      ownerType:
+      type:
         type: "string"
       active:
         type: "string"
@@ -595,6 +645,8 @@ definitions:
     properties:
       id: 
         type: "string"
+      name: 
+        type: "string"
       version: 
         type: "integer"
         format: "int"
@@ -602,17 +654,13 @@ definitions:
         type: "array"
         items: 
           $ref: "#/definitions/Preference"
-  ProfileArray:
-    type: "array"
-    items: 
-      $ref: "#/definitions/Profile"
   ProfileVersion: 
     type: "object"
     properties: 
       version: 
         type: "integer"
         format: "int"
-      version-date: 
+      versionDate: 
         type: "string"
         format: "date-time"
   ProfileVersions: 
@@ -627,17 +675,17 @@ definitions:
   Preference:
     type: "object"
     properties:
-      definition-id: 
+      definitionId: 
         type: "string"
       value:
         type: "object"
-  Config:
+  Category:
     type: "object"
     properties:
-      ownerTypes: 
-        $ref: "#/definitions/OwnerTypeArray"
-      definitions:
-        $ref: "#/definitions/PreferenceDefinitionArray"
+      name:
+        type: "string"
+      order:
+        type: "integer"
 externalDocs:
   description: "Find out more about Swagger"
   url: "http://swagger.io"

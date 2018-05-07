@@ -33,7 +33,7 @@ import { ApiConfiguration } from './api/api-configuration';
 
 export function initApiConfiguration(config: ApiConfiguration): Function {
   return () => {
-    config.rootUrl = 'https://some-root-url.com';
+    config.rootUrl = 'http://localhost:4201';
   };
 }
 export const INIT_API_CONFIGURATION: Provider = {

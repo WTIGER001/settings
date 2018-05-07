@@ -1,5 +1,5 @@
 /* tslint:disable */
 export interface Preference {
-  definition-id?: string;
+  definitionId?: string;
   value?: {};
 }

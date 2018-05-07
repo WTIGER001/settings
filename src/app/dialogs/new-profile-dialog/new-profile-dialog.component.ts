@@ -1,7 +1,8 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { NgbModal, NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
-import { Profile, PreferenceOwner } from '../../data';
+
 import { DataService } from '../../data.service';
+import { PreferenceOwner, Profile } from '../../api/models';
 
 @Component({
   selector: 'new-profile-dialog',
@@ -16,12 +17,11 @@ export class NewProfileDialogComponent implements OnInit {
   constructor(public activeModal: NgbActiveModal, private _dataSvc: DataService) { }
 
   ngOnInit() {
-
+    this._dataSvc.profiles.subscribe(ps => this.profiles = ps)
+    this._dataSvc.currentOwner.subscribe(o => this._owner = o);
   }
 
   @Input() set owner(ownIn: PreferenceOwner) {
-    this._owner = ownIn;
-    this.profiles = this._owner.profiles
 
   }
 

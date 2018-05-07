@@ -1,8 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { DataService } from '../../data.service';
-import { Profile, Setting, PreferenceDefinition, ExportPackage } from '../../data';
+import { ExportPackage } from '../../data';
 import { saveAs } from 'file-saver';
+import { Profile, PreferenceDefinition, Preference } from '../../api/models';
 
 @Component({
   selector: 'app-export-dialog',
@@ -21,21 +22,19 @@ export class ExportDialogComponent implements OnInit {
 
   ok() {
     // Determine which settings are supposed to be exported
-    let settings: Array<Setting> = []
+    let settings: Array<Preference> = []
     this.selected.forEach(def => {
-      def.schemas.forEach(sch => {
-        let found = this.profile.settings.find(setting => setting.provider_ref == def.name && setting.schema_ref == sch.name)
-        if (found) {
-          settings.push(found);
-        }
-      })
+      let found = this.profile.preferences.find(setting => setting.definitionId == def.id)
+      if (found) {
+        settings.push(found);
+      }
     })
 
     // Export these to a file
     let pkg = new ExportPackage();
-    pkg.ownerName = this._dataSvc.owner.name
+    pkg.ownerName = this._dataSvc.owner.id
     pkg.ownerType = this._dataSvc.owner.type
-    pkg.profileName = this.profile.name
+    pkg.profileName = this.profile.id
     pkg.settings = settings
 
     let exportString = JSON.stringify(pkg, null, 2);

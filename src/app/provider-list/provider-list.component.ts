@@ -1,8 +1,9 @@
 import { Component, OnInit } from '@angular/core';
-import { Profile, Config, PreferenceDefinition } from '../data';
 import { Observable } from 'rxjs/Observable';
 import { DataService } from '../data.service';
 import { forEach } from 'angular2-json-schema-form';
+import { Profile, Category, PreferenceDefinition } from '../api/models';
+import { Config } from '../data';
 
 @Component({
   selector: 'app-provider-list',
@@ -10,43 +11,22 @@ import { forEach } from 'angular2-json-schema-form';
   styleUrls: ['./provider-list.component.css']
 })
 export class ProviderListComponent implements OnInit {
-  profile: Observable<Profile>
-  definitions: Array<PreferenceDefinition> = []
-  selected: any;
+  categories: Array<Category>
+  selected: Category;
   config: Config;
   constructor(private _data: DataService) { }
 
   ngOnInit() {
-    this.profile = this._data.currentProfile;
-
     this._data.config.subscribe(c => this.config = c)
+    this._data.currentProfile.subscribe(profile => {
+      console.log("Profile Found " + profile.id);
 
-    this.profile.subscribe(profile => {
-      console.log("Profile Found " + profile.name);
-
-      // Get a unique list of the providers
-      let nameMap = new Map<string, string>()
-      profile.settings.forEach(setting => nameMap.set(setting.provider_ref, setting.provider_ref));
-
-      // Get the Preference PreferenceDefinition
-      let defs = new Array<PreferenceDefinition>()
-      nameMap.forEach(name => {
-        let a = DataService.findDefinition(name, this.config);
-        if (a !== undefined) {
-          defs.push(a)
-        } else {
-          // errors
-        }
-      })
-
-      // Sort the list
-      this.definitions = defs.sort((a: PreferenceDefinition, b: PreferenceDefinition) => {
-        return b.order - a.order;
-      })
+      // Get a unique list of the categories
+      this.categories = this._data.getCategoriesForPrefs(profile.preferences);
 
       // Auto select the first definition
-      if (this.selected == undefined && this.definitions.length > 0) {
-        this.select(this.definitions[0])
+      if (this.selected == undefined && this.categories.length > 0) {
+        this.select(this.categories[0])
       }
     })
   }
@@ -55,6 +35,4 @@ export class ProviderListComponent implements OnInit {
     this.selected = item;
     this._data.selection.next(this.selected);
   }
-
-
 }

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { ExportPackage, Setting, Profile } from '../../data';
 import { DataService } from '../../data.service';
 import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
+import { ExportPackage } from '../../data';
+import { Preference, Profile } from '../../api/models';
 
 @Component({
   selector: 'app-import-dialog',
@@ -30,7 +31,7 @@ export class ImportDialogComponent implements OnInit {
     this.exportPkg = JSON.parse(text);
     let categories = new Map<string, string>();
     this.exportPkg.settings.forEach(s => {
-      categories.set(s.provider_ref, s.provider_ref);
+      categories.set(s.definitionId, s.definitionId);
     })
     let items = [];
     categories.forEach(item => {
@@ -49,20 +50,20 @@ export class ImportDialogComponent implements OnInit {
       return
     }
 
-    let settings: Array<Setting> = []
+    let settings: Array<Preference> = []
     this.selected.forEach(sName => {
       this.exportPkg.settings.forEach(s => {
-        if (s.provider_ref == sName) {
+        if (s.definitionId == sName) {
           settings.push(s);
         }
       })
     })
 
-    let p = new Profile();
-    p.name = this.exportPkg.profileName
-    p.settings = settings;
+    let p: Profile = {}
+    p.id = this.exportPkg.profileName
+    p.preferences = settings;
 
-    this._dataSvc.CreateProfile(this._dataSvc.owner, p.name, p);
+    this._dataSvc.CreateProfile(this._dataSvc.owner, p.id, p);
     this.activeModal.dismiss("done");
   }
 }

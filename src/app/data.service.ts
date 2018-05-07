@@ -3,12 +3,13 @@ import { Http } from '@angular/http';
 import { Observable } from 'rxjs/Observable';
 import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/mergeMap';
+// import 'rxjs/add/operator/flatMap';
 import 'rxjs/add/operator/map';
 
 
 // import { User, PreferenceDefinition, Config, PreferenceOwner, Profile, Setting } from './data';
-import { User } from './data';
-import { Config, OwnerType, Preference, PreferenceDefinition, PreferenceOwner, Profile, ProfileVersion, ProfileVersions } from './api/models';
+import { User, Config } from './data';
+import { OwnerType, Preference, PreferenceDefinition, PreferenceOwner, Profile, ProfileVersion, ProfileVersions, Category } from './api/models';
 import { CommonDialogService } from './dialogs/common-dialog.service';
 import { ConfigurationService, PreferencesService } from './api/services';
 
@@ -22,6 +23,7 @@ export class DataService {
   config: ReplaySubject<Config> = new ReplaySubject();
   definitions: ReplaySubject<Array<PreferenceDefinition>> = new ReplaySubject();
   types: ReplaySubject<Array<OwnerType>> = new ReplaySubject();
+  categories: ReplaySubject<Array<Category>> = new ReplaySubject();
 
   // Current Preference Owner
   currentOwner: ReplaySubject<PreferenceOwner> = new ReplaySubject();
@@ -36,13 +38,14 @@ export class DataService {
   currentProfile: ReplaySubject<Profile> = new ReplaySubject()
 
   // Currently Selected Provider (for editing)
-  selection: ReplaySubject<PreferenceDefinition> = new ReplaySubject();
+  selection: ReplaySubject<Category> = new ReplaySubject();
 
   // Not sure how to make this better.
   owner: PreferenceOwner
   cfg: Config
   defs: Array<PreferenceDefinition>
   tps: Array<OwnerType>
+  cats: Array<Category>
 
   constructor(
     private http: Http,
@@ -55,14 +58,10 @@ export class DataService {
       .subscribe(d => {
         this.defs = d;
         this.definitions.next(d);
-
-        if (this.defs != undefined && this.tps != undefined) {
-          this.cfg = {
-            definitions: this.defs,
-            ownerTypes: this.tps
-          }
-          this.config.next(this.cfg);
-        }
+        this.processConfig()
+      }, err => {
+        console.log(err);
+        this.dialog.errorMsg(err, "Error Requesting Preference Definitions")
       })
 
     console.log("Requesting Owner Types")
@@ -70,33 +69,25 @@ export class DataService {
       .subscribe(t => {
         this.tps = t;
         this.types.next(t);
-
-        if (this.defs != undefined && this.tps != undefined) {
-          this.cfg = {
-            definitions: this.defs,
-            ownerTypes: this.tps
-          }
-          this.config.next(this.cfg);
-        }
+        this.processConfig()
+      }, err => {
+        this.dialog.errorMsg(err, "Error Requesting Owner Types")
       })
 
-
-    // console.log("Getting Config");
-    // http.get('http://localhost:3000/config')
-    //   .subscribe(res => {
-    //     this.cfg = res.json()
-    //     this.config.next(this.cfg);
-    //   });
+    console.log("Requesting Categories")
+    this.configSvc.getCategories()
+      .subscribe(cat => {
+        this.cats = cat;
+        this.categories.next(cat);
+        this.processConfig()
+      }, err => {
+        this.dialog.errorMsg(err, "Error Requesting Categories")
+      })
 
     console.log("Getting User");
-    http.get('http://localhost:3000/users/jbauer')
-      .subscribe(res => {
-        let usr = new User();
-        usr.id = "jbauer"
-        usr.owners = []
-        usr.owners.push(res.json())
-        this.user.next(usr)
-      });
+    let u = new User()
+    u.id = "me";
+    this.user.next(u)
 
     this.user.subscribe(usr => {
       console.log("USER RECEIVED " + usr.id);
@@ -109,10 +100,13 @@ export class DataService {
 
     // Keep the 'profiles' field up to date
     this.currentOwner
-      .subscribe(own => {
-        console.log("OWNER SET to " + own.id);
-        this.owner = own
-        this.profiles.next(own.profiles)
+      .flatMap(owner => {
+        console.log("OWNER SET to " + owner.id);
+        this.owner = owner
+        return this.prefSvc.getProfiles(owner.profileIds)
+      })
+      .subscribe(profiles => {
+        this.profiles.next(profiles)
       })
 
     // Auto select the active profile when the user changes the current owner
@@ -128,23 +122,13 @@ export class DataService {
     })
   }
 
-  public static findMe(usr: User): PreferenceOwner {
-    let found = this.findOwner(usr, "users");
-    return found.length == 1 ? found[0] : undefined;
+  public findMe(usr: User): Observable<PreferenceOwner> {
+    return this.prefSvc.getOwner(usr.id)
   }
 
-  public static findOwner(usr: User, type: string): Array<PreferenceOwner> {
-    if (usr == undefined || usr.owners == undefined) return [];
-    return usr.owners.filter(owner => owner.type == type)
-  }
-
-  // public getProfiles(owner: PreferenceOwner): Observable<Array<Profile>> {
-  //   let type = owner.type
-  //   let id = owner.id
-  //   let url = `http://localhost:3000/${type}/${id}`
-  //   console.log(url);
-
-  //   return this.http.get(url).map(res => res.json());
+  // public static findOwner(usr: User, type: string): Array<PreferenceOwner> {
+  //   if (usr == undefined || usr.owners == undefined) return [];
+  //   return usr.owners.filter(owner => owner.type == type)
   // }
 
   public static findDefinition(name: string, config: Config): PreferenceDefinition {
@@ -154,22 +138,24 @@ export class DataService {
   public save(profile: Profile) {
     let type = this.owner.type
     let id = this.owner.id
-    // let url = `http://localhost:3000/${type}/${id}/${profile.name}`
-    // this.http.post(url, profile)
-    //   .subscribe(res => {
-    //     console.log("Success" + res.status)
-    //   },
-    //     error => {
-    //       console.log("Error" + error)
-    //     })
+
+    let params = {
+      id: id,
+      body: profile
+    }
+    this.prefSvc.updateProfile(params).subscribe(success => {
+
+    }, error => {
+      this.dialog.errorMsg(error, "Error Updating Profile")
+    })
   }
 
   public getCategories(profile: Profile): Array<PreferenceDefinition> {
-    console.log("Profile Found " + profile.name);
+    console.log("Profile Found " + profile.id);
 
     // Get a unique list of the providers
     let nameMap = new Map<string, string>()
-    profile.settings.forEach(setting => nameMap.set(setting.provider_ref, setting.provider_ref));
+    profile.preferences.forEach(setting => nameMap.set(setting.definitionId, setting.definitionId));
 
     // Get the Preference PreferenceDefinition
     let defs = new Array<PreferenceDefinition>()
@@ -191,77 +177,133 @@ export class DataService {
   }
 
   public CreateProfile(owner: PreferenceOwner, name: string, copyFrom: Profile): Profile {
-    let dup = this.checkDuplicateNames(name, owner.profiles)
+    let dup = this.checkDuplicateNames(name, owner.profileIds)
     if (dup) {
       this.dialog.errorMsg("You cannot have the same name for 2 profiles", "Duplicate Names")
       return;
     }
 
-    let newProfile = new Profile();
+    let newProfile: Profile = {};
     if (copyFrom) {
       newProfile = JSON.parse(JSON.stringify(copyFrom));
     } else {
-      newProfile.settings = []
+      newProfile.preferences = []
     }
-    newProfile.name = name;
+    newProfile.id = name;
 
     let type = this.owner.type;
-    let ownerType = this.cfg.ownerTypes.find(p => p.type == type)
+    let ownerType = this.cfg.ownerTypes.find(p => p.id == type)
     let defs = this.cfg.definitions.filter(def => ownerType.definitions.includes(def.name));
 
     defs.forEach(d => {
-      d.schemas.forEach(s => {
-        let setting = new Setting()
-        setting.data = {}
-        setting.provider_ref = d.name
-        setting.schema_ref = s.name
+      let setting: Preference = {}
+      setting.value = {}
+      setting.definitionId = d.name
 
-        // add the setting if needed
-        let found = newProfile.settings.find(s => s.provider_ref == setting.provider_ref && s.schema_ref == setting.schema_ref)
-        if (!found) {
-          newProfile.settings.push(setting)
-        }
-      })
+      // add the setting if needed
+      let found = newProfile.preferences.find(s => s.definitionId == setting.definitionId)
+      if (!found) {
+        newProfile.preferences.push(setting)
+      }
     })
 
-    this.owner.profiles.push(newProfile);
+    this.owner.profileIds.push(newProfile.id);
     return newProfile;
   }
 
   public renameProfile(p: Profile, name: string) {
-    if (p.name == name) {
+    if (p.id == name) {
       return;
     }
 
-    let dup = this.checkDuplicateNames(name, this.owner.profiles, p)
+    let dup = this.checkDuplicateNames(name, this.owner.profileIds, p)
     if (dup) {
       this.dialog.errorMsg("You cannot have the same name for 2 profiles", "Duplicate Names")
       return;
     }
-    if (p.name == this.owner.activeProfile) {
-      this.owner.activeProfile = name
+    if (p.id == this.owner.active) {
+      this.owner.active = name
     }
-    p.name = name;
+    p.id = name;
   }
 
-  public checkDuplicateNames(name: string, profiles: Array<Profile>, exclude: Profile = undefined): boolean {
-    return (profiles.findIndex(p => {
-      if (exclude && p == exclude) {
+  public checkDuplicateNames(name: string, profileIds: Array<String>, exclude: Profile = undefined): boolean {
+    return (profileIds.findIndex(id => {
+      if (exclude && id == exclude.id) {
         return false
       }
-      return p.name == name
+      return id == name
     }) >= 0)
   }
 
-  public deleteProfile(name: string) {
-    if (name == this.owner.activeProfile) {
+  public deleteProfile(idToDelete: string) {
+    if (idToDelete == this.owner.active) {
       this.dialog.errorMsg("You cannot delete the active profile", "Error")
       return;
     }
 
-    let index = this.owner.profiles.findIndex(p => p.name == name);
+    let index = this.owner.profileIds.findIndex(id => id == idToDelete);
     if (index >= 0) {
-      this.owner.profiles.splice(index, 1);
+      this.owner.profileIds.splice(index, 1);
     }
+  }
+
+  public processConfig() {
+    if (this.defs == undefined || this.tps == undefined || this.categories == undefined) {
+      return;
+    }
+
+    let defMap = new Map<string, PreferenceDefinition>()
+    this.defs.forEach(d => defMap.set(d.id, d))
+
+    this.cfg = {
+      definitions: this.defs,
+      ownerTypes: this.tps,
+      categories: this.cats,
+      defMap: defMap
+    }
+    this.config.next(this.cfg);
+  }
+
+  public getDefinitions(cat: Category): Array<PreferenceDefinition> {
+    let defs = this.cfg.definitions.filter(d => d.category == cat.name);
+    return defs.sort((a, b) => b.order - a.order)
+  }
+
+  public getCategoriesForPrefs(preferences: Array<Preference>): Array<Category> {
+    // Create a bogus category
+    let unknown: Category = {
+      name: "Unknown",
+      order: 99999999999
+    }
+
+    // Map all the categories that we need
+    let catsNeeded = new Map<string, Category>()
+    console.log("Pref count " + preferences.length);
+
+    preferences.forEach(pref => {
+      console.log(pref)
+      let cat = unknown
+      console.log("Pref id  " + pref.definitionId);
+      if (pref.definitionId != undefined) {
+        cat = this.cfg.defMap.get(pref.definitionId)
+        console.log("Cat " + cat);
+        if (cat == undefined) {
+          cat = unknown
+        }
+      }
+      catsNeeded.set(cat.name, cat);
+    });
+
+    // now put them all into a list
+    let cats = new Array<Category>()
+    catsNeeded.forEach(cat => {
+      cats.push(cat)
+    })
+
+    // Sort
+    cats = cats.sort((a, b) => b.order - a.order)
+
+    return cats
   }
 }

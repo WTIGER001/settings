@@ -3,10 +3,10 @@ import { Observable } from 'rxjs/Observable';
 import { fromPromise } from 'rxjs/observable/fromPromise';
 
 import { NgbModal, NgbActiveModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
-import { PreferenceOwner, Profile } from '../data';
 import { NewProfileDialogComponent } from './new-profile-dialog/new-profile-dialog.component'
 import { ExportDialogComponent } from './export-dialog/export-dialog.component';
 import { ImportDialogComponent } from './import-dialog/import-dialog.component';
+import { PreferenceOwner, Profile } from '../api/models';
 
 
 @Injectable()

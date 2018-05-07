@@ -1,5 +1,6 @@
 <h5>Setting Categories</h5>
-<div class="nav flex-column nav-tabs nav-tabs--vertical nav-tabs--left high" id="v-pills-tab" role="tablist" aria-orientation="vertical">
-    <a *ngFor="let me of definitions" class="nav-link" href="#" [class.active]="selected===me" role="tab" aria-controls="v-pills-home"
+<div class="nav flex-column nav-tabs nav-tabs--vertical nav-tabs--left high" 
+id="v-pills-tab" role="tablist" aria-orientation="vertical">
+    <a *ngFor="let me of categories" class="nav-link" href="#" [class.active]="selected===me" role="tab" aria-controls="v-pills-home"
         aria-selected="true" (click)="select(me)">{{me.name}}</a>
 </div>

@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { DataService } from '../data.service';
-import { PreferenceDefinition, Profile, Specification, Setting, ChangedSetting } from '../data';
+import { ChangedSetting } from '../data';
 import { JsonSchemaFormService } from 'angular2-json-schema-form';
+import { PreferenceDefinition, Profile, Preference, Category } from '../api/models';
 
 @Component({
   selector: 'app-setting-area',
@@ -9,48 +10,48 @@ import { JsonSchemaFormService } from 'angular2-json-schema-form';
   styleUrls: ['./setting-area.component.css']
 })
 export class SettingAreaComponent implements OnInit {
-  definition: PreferenceDefinition
+  category: Category
   profile: Profile;
   items: Array<HoldMe> = []
   public mode = 'form'
-  changedData = new Map<Setting, ChangedSetting>()
+  changedData = new Map<Preference, ChangedSetting>()
 
   constructor(private _data: DataService) { }
 
   ngOnInit() {
     this._data.currentProfile.subscribe(p => {
-      console.log("Setting Profile " + p.name)
+      console.log("Setting Profile " + p.id)
       this.profile = p
       this.sortAndPrep()
     });
 
     this._data.selection.subscribe(sel => {
       console.log("Selection Made " + sel.name);
-      this.definition = sel;
+      this.category = sel;
       this.sortAndPrep()
     });
   }
 
   private sortAndPrep() {
-
-    if (this.definition == undefined || this.profile == undefined) return
+    if (this.category == undefined || this.profile == undefined) return
 
     // Get a sorted list
     let a = new Array<HoldMe>()
 
     console.log("Schemas");
-    console.log(this.definition.schemas);
 
-    this.definition.schemas.forEach(schema => {
-      let setting = this.profile.settings.find(s => s.schema_ref == schema.name && s.provider_ref == this.definition.name)
+    let defs = this._data.getDefinitions(this.category)
+
+    defs.forEach(d => {
+      let preference = this.profile.preferences.find(s => s.definitionId == d.id)
 
       let h = new HoldMe()
-      h.setting = setting
-      h.spec = schema
+      h.setting = preference
+      h.spec = d
 
       a.push(h)
     })
-    a = a.sort((a, b) => b.spec.order - a.spec.order);
+    // a = a.sort((a, b) => b.spec.order - a.spec.order);
 
     a.forEach(item => {
       console.log(item)
@@ -65,16 +66,14 @@ export class SettingAreaComponent implements OnInit {
   save() {
     console.log("Saved");
     this.changedData.forEach(v => {
-      v.setting.data = v.data
+      v.setting.value = v.data
     })
 
     this._data.save(this.profile);
   }
 }
 
-
-
 class HoldMe {
-  setting: Setting;
-  spec: Specification;
+  setting: Preference;
+  spec: PreferenceDefinition;
 }

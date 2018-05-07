@@ -1,10 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { NgbModal, ModalDismissReasons } from '@ng-bootstrap/ng-bootstrap';
 
-import { Profile, PreferenceOwner, PreferenceDefinition } from '../data';
 import { DataService } from '../data.service';
 import { DialogService } from '../dialogs/dialog.service';
 import { CommonDialogService } from '../dialogs/common-dialog.service';
+import { PreferenceOwner, Profile, PreferenceDefinition } from '../api/models';
 
 @Component({
   selector: 'app-profile-selector',
@@ -13,6 +13,7 @@ import { CommonDialogService } from '../dialogs/common-dialog.service';
 })
 export class ProfileSelectorComponent implements OnInit {
   owner: PreferenceOwner
+  profiles: Array<Profile> = []
   selected: Profile
   closeResult: string;
 
@@ -24,9 +25,9 @@ export class ProfileSelectorComponent implements OnInit {
   ngOnInit() {
     this._dataSvc.currentOwner.subscribe(o => {
       this.owner = o
-      console.log("Profile Count: " + o.profiles.length);
+      console.log("Profile Count: " + o.profileIds.length);
     });
-
+    this._dataSvc.profiles.subscribe(ps => this.profiles = ps)
     this._dataSvc.currentProfile.subscribe(selection => this.selected = selection)
   }
 
@@ -51,19 +52,19 @@ export class ProfileSelectorComponent implements OnInit {
   }
 
   deleteProfile() {
-    if (this.owner.activeProfile == this.selected.name) {
+    if (this.owner.active == this.selected.id) {
       return;
     }
 
     this.commonDialog.confirm(`Are you sure you want to delete ${this.selected.name}`, "Delete Profile").subscribe(result => {
       if (result) {
-        this._dataSvc.deleteProfile(this.selected.name);
+        this._dataSvc.deleteProfile(this.selected.id);
       }
     })
   }
 
   makeActive() {
-    this.owner.activeProfile = this.selected.name
+    this.owner.active = this.selected.id
   }
 
   public newName() {

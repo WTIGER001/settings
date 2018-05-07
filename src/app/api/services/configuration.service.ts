@@ -9,10 +9,8 @@ import { Observable } from 'rxjs/Observable';
 import { map } from 'rxjs/operators/map';
 import { filter } from 'rxjs/operators/filter';
 
-import { Config } from '../models/config';
-import { PreferenceDefinitionArray } from '../models/preference-definition-array';
+import { Category } from '../models/category';
 import { PreferenceDefinition } from '../models/preference-definition';
-import { OwnerTypeArray } from '../models/owner-type-array';
 import { OwnerType } from '../models/owner-type';
 
 /**
@@ -30,13 +28,13 @@ class ConfigurationService extends BaseService {
   /**
    * @return Success
    */
-  getConfigResponse(): Observable<HttpResponse<Config>> {
+  getCategoriesResponse(): Observable<HttpResponse<Array<Category>>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
     let req = new HttpRequest<any>(
       'GET',
-      this.rootUrl + `/configuration`,
+      this.rootUrl + `/category`,
       __body,
       {
         headers: __headers,
@@ -48,9 +46,9 @@ class ConfigurationService extends BaseService {
       filter(_r => _r instanceof HttpResponse),
       map(_r => {
         let _resp = _r as HttpResponse<any>;
-        let _body: Config = null;
-        _body = _resp.body as Config;
-        return _resp.clone({body: _body}) as HttpResponse<Config>;
+        let _body: Array<Category> = null;
+        _body = _resp.body as Array<Category>;
+        return _resp.clone({body: _body}) as HttpResponse<Array<Category>>;
       })
     );
   }
@@ -58,8 +56,86 @@ class ConfigurationService extends BaseService {
   /**
    * @return Success
    */
-  getConfig(): Observable<Config> {
-    return this.getConfigResponse().pipe(
+  getCategories(): Observable<Array<Category>> {
+    return this.getCategoriesResponse().pipe(
+      map(_r => _r.body)
+    );
+  }
+
+  /**
+   * @param category Category that needs to be added
+   * @return Success
+   */
+  addCategoryResponse(category: Category): Observable<HttpResponse<Category>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+    __body = category;
+    let req = new HttpRequest<any>(
+      'POST',
+      this.rootUrl + `/category`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'json'
+      });
+
+    return this.http.request<any>(req).pipe(
+      filter(_r => _r instanceof HttpResponse),
+      map(_r => {
+        let _resp = _r as HttpResponse<any>;
+        let _body: Category = null;
+        _body = _resp.body as Category;
+        return _resp.clone({body: _body}) as HttpResponse<Category>;
+      })
+    );
+  }
+
+  /**
+   * @param category Category that needs to be added
+   * @return Success
+   */
+  addCategory(category: Category): Observable<Category> {
+    return this.addCategoryResponse(category).pipe(
+      map(_r => _r.body)
+    );
+  }
+
+  /**
+   * @param name category name to delete
+   */
+  deleteCategoryResponse(name: string): Observable<HttpResponse<void>> {
+    let __params = this.newParams();
+    let __headers = new HttpHeaders();
+    let __body: any = null;
+
+    let req = new HttpRequest<any>(
+      'DELETE',
+      this.rootUrl + `/category/${name}`,
+      __body,
+      {
+        headers: __headers,
+        params: __params,
+        responseType: 'text'
+      });
+
+    return this.http.request<any>(req).pipe(
+      filter(_r => _r instanceof HttpResponse),
+      map(_r => {
+        let _resp = _r as HttpResponse<any>;
+        let _body: void = null;
+
+        return _resp.clone({body: _body}) as HttpResponse<void>;
+      })
+    );
+  }
+
+  /**
+   * @param name category name to delete
+   */
+  deleteCategory(name: string): Observable<void> {
+    return this.deleteCategoryResponse(name).pipe(
       map(_r => _r.body)
     );
   }
@@ -67,7 +143,7 @@ class ConfigurationService extends BaseService {
   /**
    * @return Success
    */
-  getDefinitionsResponse(): Observable<HttpResponse<PreferenceDefinitionArray>> {
+  getDefinitionsResponse(): Observable<HttpResponse<Array<PreferenceDefinition>>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
@@ -85,9 +161,9 @@ class ConfigurationService extends BaseService {
       filter(_r => _r instanceof HttpResponse),
       map(_r => {
         let _resp = _r as HttpResponse<any>;
-        let _body: PreferenceDefinitionArray = null;
-
-        return _resp.clone({body: _body}) as HttpResponse<PreferenceDefinitionArray>;
+        let _body: Array<PreferenceDefinition> = null;
+        _body = _resp.body as Array<PreferenceDefinition>;
+        return _resp.clone({body: _body}) as HttpResponse<Array<PreferenceDefinition>>;
       })
     );
   }
@@ -95,7 +171,7 @@ class ConfigurationService extends BaseService {
   /**
    * @return Success
    */
-  getDefinitions(): Observable<PreferenceDefinitionArray> {
+  getDefinitions(): Observable<Array<PreferenceDefinition>> {
     return this.getDefinitionsResponse().pipe(
       map(_r => _r.body)
     );
@@ -275,7 +351,7 @@ class ConfigurationService extends BaseService {
   /**
    * @return Success
    */
-  getOwnerTypesResponse(): Observable<HttpResponse<OwnerTypeArray>> {
+  getOwnerTypesResponse(): Observable<HttpResponse<Array<OwnerType>>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
@@ -293,9 +369,9 @@ class ConfigurationService extends BaseService {
       filter(_r => _r instanceof HttpResponse),
       map(_r => {
         let _resp = _r as HttpResponse<any>;
-        let _body: OwnerTypeArray = null;
-
-        return _resp.clone({body: _body}) as HttpResponse<OwnerTypeArray>;
+        let _body: Array<OwnerType> = null;
+        _body = _resp.body as Array<OwnerType>;
+        return _resp.clone({body: _body}) as HttpResponse<Array<OwnerType>>;
       })
     );
   }
@@ -303,7 +379,7 @@ class ConfigurationService extends BaseService {
   /**
    * @return Success
    */
-  getOwnerTypes(): Observable<OwnerTypeArray> {
+  getOwnerTypes(): Observable<Array<OwnerType>> {
     return this.getOwnerTypesResponse().pipe(
       map(_r => _r.body)
     );

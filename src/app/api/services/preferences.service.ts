@@ -10,7 +10,6 @@ import { map } from 'rxjs/operators/map';
 import { filter } from 'rxjs/operators/filter';
 
 import { PreferenceOwner } from '../models/preference-owner';
-import { ProfileArray } from '../models/profile-array';
 import { Profile } from '../models/profile';
 import { ProfileVersions } from '../models/profile-versions';
 
@@ -158,7 +157,7 @@ class PreferencesService extends BaseService {
    * @param id ID of type to return
    * @return successful operation
    */
-  getProfilesResponse(id: Array<string>): Observable<HttpResponse<ProfileArray>> {
+  getProfilesResponse(id: Array<string>): Observable<HttpResponse<Array<Profile>>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
@@ -177,9 +176,9 @@ class PreferencesService extends BaseService {
       filter(_r => _r instanceof HttpResponse),
       map(_r => {
         let _resp = _r as HttpResponse<any>;
-        let _body: ProfileArray = null;
-
-        return _resp.clone({body: _body}) as HttpResponse<ProfileArray>;
+        let _body: Array<Profile> = null;
+        _body = _resp.body as Array<Profile>;
+        return _resp.clone({body: _body}) as HttpResponse<Array<Profile>>;
       })
     );
   }
@@ -189,7 +188,7 @@ class PreferencesService extends BaseService {
    * @param id ID of type to return
    * @return successful operation
    */
-  getProfiles(id: Array<string>): Observable<ProfileArray> {
+  getProfiles(id: Array<string>): Observable<Array<Profile>> {
     return this.getProfilesResponse(id).pipe(
       map(_r => _r.body)
     );
