@@ -12,12 +12,16 @@ export class ApiInterceptor implements HttpInterceptor {
             }
         });
 
-        return next.handle(req)
-        // return next.handle(req).pipe(
-        //     // tap(x => x, err => {
-        //     //     // Handle this err
-        //     //     console.error(`Error performing request, status code = ${err.status}`);
-        //     // })
-        // );
+        // return next.handle(req)
+        return next.handle(req).pipe(
+            // do( (x , err) => {
+            //     // Handle this err
+            //     console.error(`Error performing request, status code = ${err.status}`);
+            // })
+            // catch(err =>  {
+            //     console.error(`Error performing request, status code = ${err.status}`);
+
+            // })
+        );
     }
 }

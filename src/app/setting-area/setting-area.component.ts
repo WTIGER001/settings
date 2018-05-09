@@ -60,7 +60,6 @@ export class SettingAreaComponent implements OnInit {
   }
 
   changes(changed: ChangedSetting) {
-    console.log(changed.data);
     this.changedData.set(changed.setting, changed)
   }
   save() {

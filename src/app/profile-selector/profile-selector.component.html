@@ -1,4 +1,4 @@
-<div *ngIf="profiles && profiles.length > 0" class="container-fluid bg-light pt-2">
+<div *ngIf="profiles && selected" class="container-fluid bg-light pt-2">
 
   <div>
     <ul class="nav nav-tabs">
@@ -7,7 +7,7 @@
       </li>
       <li class="nav-item" *ngFor="let profile of profiles">
         <a class="nav-link" href="#" (click)="selectProfile(profile)" [class.active]="profile == selected">
-          <fa-icon class="gold mr-2" *ngIf="profile.name == owner.activeProfile" icon="star"></fa-icon>{{profile.name}}
+          <fa-icon class="gold mr-2" *ngIf="profile.id == owner.active" icon="star"></fa-icon>{{profile.name}}
         </a>
       </li>
       <li class="nav-item mr-auto">

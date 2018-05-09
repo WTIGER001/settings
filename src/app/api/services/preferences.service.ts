@@ -154,14 +154,20 @@ class PreferencesService extends BaseService {
 
   /**
    * Returns a single owner
-   * @param id ID of type to return
+   * @param params The `PreferencesService.GetProfilesParams` containing the following parameters:
+   *
+   * - `ownerid`: ID of owner
+   *
+   * - `id`: ID of type to return
+   *
    * @return successful operation
    */
-  getProfilesResponse(id: Array<string>): Observable<HttpResponse<Array<Profile>>> {
+  getProfilesResponse(params: PreferencesService.GetProfilesParams): Observable<HttpResponse<Array<Profile>>> {
     let __params = this.newParams();
     let __headers = new HttpHeaders();
     let __body: any = null;
-    (id || []).forEach((val, index) => {if (val != null) __params = __params.append('id', val.toString())});
+    if (params.ownerid != null) __params = __params.set('ownerid', params.ownerid.toString());
+    (params.id || []).forEach((val, index) => {if (val != null) __params = __params.append('id', val.toString())});
     let req = new HttpRequest<any>(
       'GET',
       this.rootUrl + `/profiles`,
@@ -185,11 +191,16 @@ class PreferencesService extends BaseService {
 
   /**
    * Returns a single owner
-   * @param id ID of type to return
+   * @param params The `PreferencesService.GetProfilesParams` containing the following parameters:
+   *
+   * - `ownerid`: ID of owner
+   *
+   * - `id`: ID of type to return
+   *
    * @return successful operation
    */
-  getProfiles(id: Array<string>): Observable<Array<Profile>> {
-    return this.getProfilesResponse(id).pipe(
+  getProfiles(params: PreferencesService.GetProfilesParams): Observable<Array<Profile>> {
+    return this.getProfilesResponse(params).pipe(
       map(_r => _r.body)
     );
   }
@@ -430,6 +441,22 @@ module PreferencesService {
      * Owner needs to be updated
      */
     body: PreferenceOwner;
+  }
+
+  /**
+   * Parameters for getProfiles
+   */
+  export interface GetProfilesParams {
+
+    /**
+     * ID of owner
+     */
+    ownerid?: string;
+
+    /**
+     * ID of type to return
+     */
+    id?: Array<string>;
   }
 
   /**

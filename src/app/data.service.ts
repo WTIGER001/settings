@@ -5,7 +5,8 @@ import { ReplaySubject } from 'rxjs/ReplaySubject';
 import 'rxjs/add/operator/mergeMap';
 // import 'rxjs/add/operator/flatMap';
 import 'rxjs/add/operator/map';
-
+import { UUID } from 'angular2-uuid';
+import { ToastrService } from 'ngx-toastr';
 
 // import { User, PreferenceDefinition, Config, PreferenceOwner, Profile, Setting } from './data';
 import { User, Config } from './data';
@@ -51,7 +52,8 @@ export class DataService {
     private http: Http,
     private dialog: CommonDialogService,
     private configSvc: ConfigurationService,
-    private prefSvc: PreferencesService) {
+    private prefSvc: PreferencesService, 
+    private toast: ToastrService) {
 
     console.log("Requesting Preference Definitions")
     this.configSvc.getDefinitions()
@@ -103,9 +105,13 @@ export class DataService {
       .flatMap(owner => {
         console.log("OWNER SET to " + owner.id);
         this.owner = owner
-        return this.prefSvc.getProfiles(owner.profileIds)
+        console.log("OWNER")
+        console.log(this.owner)
+
+        return this.prefSvc.getProfiles({ownerid:owner.id})
       })
       .subscribe(profiles => {
+        console.log("PROFILES count:" + profiles.length)
         this.profiles.next(profiles)
       })
 
@@ -177,11 +183,11 @@ export class DataService {
   }
 
   public CreateProfile(owner: PreferenceOwner, name: string, copyFrom: Profile): Profile {
-    let dup = this.checkDuplicateNames(name, owner.profileIds)
-    if (dup) {
-      this.dialog.errorMsg("You cannot have the same name for 2 profiles", "Duplicate Names")
-      return;
-    }
+    // let dup = this.checkDuplicateNames(name,)
+    // if (dup) {
+    //   this.dialog.errorMsg("You cannot have the same name for 2 profiles", "Duplicate Names")
+    //   return;
+    // }
 
     let newProfile: Profile = {};
     if (copyFrom) {
@@ -189,16 +195,35 @@ export class DataService {
     } else {
       newProfile.preferences = []
     }
-    newProfile.id = name;
+    newProfile.id = UUID.UUID();
+    newProfile.name = name;
+    newProfile.owner = owner.id
+    
+    let type = owner.type;
+    console.log("Type: " + type);
+    
+    let ownerType = this.cfg.ownerTypes.find(ot => {
+      console.log("--->" + ot.id + " - " + ot.name)
+      let result = ot.id == type
+      console.log(ot.id + "  " + type + " " + result)
+      return result
+    })
+    console.log("Owner Type (out of): " + ownerType +  " " + this.cfg.ownerTypes.length);
+    console.log("Defintiions: "  +  this.cfg.definitions.length);
+    console.log("Owner Defintiions: "  +  ownerType.definitions.length);
 
-    let type = this.owner.type;
-    let ownerType = this.cfg.ownerTypes.find(p => p.id == type)
-    let defs = this.cfg.definitions.filter(def => ownerType.definitions.includes(def.name));
+    let defs = this.cfg.definitions.filter(def => ownerType.definitions.includes(def.id));
+    console.log("Defintiions Found : " + defs.length );
+    // defs = this.cfg.definitions.filter(def => {
+    //    ownerType.definitions.forEach(dName => {
+    //      if (dName == def.)
+    //    })
+    // })
 
     defs.forEach(d => {
       let setting: Preference = {}
       setting.value = {}
-      setting.definitionId = d.name
+      setting.definitionId = d.id
 
       // add the setting if needed
       let found = newProfile.preferences.find(s => s.definitionId == setting.definitionId)
@@ -207,7 +232,14 @@ export class DataService {
       }
     })
 
-    this.owner.profileIds.push(newProfile.id);
+
+    // Save the profile
+    this.prefSvc.updateProfile({id: newProfile.id, body: newProfile})
+    .flatMap(ok => this.prefSvc.getProfiles({ownerid:this.owner.id}))
+    .subscribe(profiles => {
+      this.profiles.next(profiles)
+    })
+
     return newProfile;
   }
 
@@ -216,11 +248,11 @@ export class DataService {
       return;
     }
 
-    let dup = this.checkDuplicateNames(name, this.owner.profileIds, p)
-    if (dup) {
-      this.dialog.errorMsg("You cannot have the same name for 2 profiles", "Duplicate Names")
-      return;
-    }
+    // let dup = this.checkDuplicateNames(name, this.owner.profileIds, p)
+    // if (dup) {
+    //   this.dialog.errorMsg("You cannot have the same name for 2 profiles", "Duplicate Names")
+    //   return;
+    // }
     if (p.id == this.owner.active) {
       this.owner.active = name
     }
@@ -242,10 +274,10 @@ export class DataService {
       return;
     }
 
-    let index = this.owner.profileIds.findIndex(id => id == idToDelete);
-    if (index >= 0) {
-      this.owner.profileIds.splice(index, 1);
-    }
+    this.prefSvc.deleteProfile(idToDelete).subscribe(
+      ok => { console.log("TOAST HERE"), this.refreshProfiles()}, 
+      err => { this.dialog.errorMsg("oops", "Error Deleting Profile")}
+    )
   }
 
   public processConfig() {
@@ -305,5 +337,18 @@ export class DataService {
     cats = cats.sort((a, b) => b.order - a.order)
 
     return cats
+  }
+
+  public refreshProfiles() {
+    this.prefSvc.getProfiles({ownerid:this.owner.id}).subscribe( profiles => this.profiles.next(profiles))
+  }
+
+  public saveOwner(owner: PreferenceOwner) {
+    this.prefSvc.updateOwner({id:owner.id, body:owner}).subscribe(ok=>{
+      this.toast.success('Saved', 'Owner was updated')
+    }, err=> {
+      this.toast.error('FAILED', 'FAILED')
+
+      this.dialog.errorMsg("Could not save owner")})
   }
 }

@@ -444,10 +444,15 @@ paths:
       - name: "id"
         in: "query"
         description: "ID of type to return"
-        required: true
+        required: false
         type: "array"
         items: 
           type: "string"
+      - name: "ownerid"
+        in: "query"
+        description: "ID of owner"
+        required: false
+        type: "string"
       responses:
         200:
           description: "successful operation"
@@ -636,14 +641,12 @@ definitions:
         type: "string"
       active:
         type: "string"
-      profileIds: 
-        type: "array"
-        items:
-          type: "string"
   Profile: 
     type: "object"
     properties:
       id: 
+        type: "string"
+      owner:
         type: "string"
       name: 
         type: "string"

@@ -1,4 +1,5 @@
-import { BrowserModule } from '@angular/platform-browser';
+import { BrowserModule,  } from '@angular/platform-browser';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 import { HttpModule } from '@angular/http';
 import { FormsModule } from '@angular/forms';
 import { NgModule, Provider, APP_INITIALIZER, forwardRef } from '@angular/core';
@@ -8,6 +9,8 @@ import { JsonSchemaFormModule, Bootstrap4FrameworkModule } from 'angular2-json-s
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { AceEditorModule } from 'ng2-ace-editor';
 import { ApiModule } from './api/api.module'
+import { uuid4 } from 'angular-uuid4'
+import { ToastrModule } from 'ngx-toastr';
 
 import { ApiInterceptor } from './api.interceptor';
 import { AppComponent } from './app.component';
@@ -67,6 +70,7 @@ export const API_INTERCEPTOR_PROVIDER: Provider = {
   ],
   imports: [
     BrowserModule,
+    BrowserAnimationsModule,
     HttpModule,
     FormsModule,
     Bootstrap4FrameworkModule,
@@ -74,6 +78,10 @@ export const API_INTERCEPTOR_PROVIDER: Provider = {
     ApiModule,
     FontAwesomeModule,
     AceEditorModule,
+    ToastrModule.forRoot({
+      positionClass: 'toast-bottom-right',
+      timeOut: 3000
+    }),
     JsonSchemaFormModule.forRoot(Bootstrap4FrameworkModule)
   ],
   providers: [

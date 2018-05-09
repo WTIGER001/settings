@@ -25,7 +25,6 @@ export class ProfileSelectorComponent implements OnInit {
   ngOnInit() {
     this._dataSvc.currentOwner.subscribe(o => {
       this.owner = o
-      console.log("Profile Count: " + o.profileIds.length);
     });
     this._dataSvc.profiles.subscribe(ps => this.profiles = ps)
     this._dataSvc.currentProfile.subscribe(selection => this.selected = selection)
@@ -65,6 +64,7 @@ export class ProfileSelectorComponent implements OnInit {
 
   makeActive() {
     this.owner.active = this.selected.id
+    this._dataSvc.saveOwner(this.owner);
   }
 
   public newName() {
